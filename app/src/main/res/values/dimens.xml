@@ -1,0 +1,16 @@
+<resources>
+    <dimen name="margin">30dip</dimen>
+    <!-- Button -->
+    <dimen name="buttonPrimaryCorner">20dip</dimen>
+    <dimen name="buttonPrimaryStroke">0dip</dimen>
+
+    <dimen name="buttonSecondaryCorner">20dip</dimen>
+    <dimen name="buttonSecondaryStroke">2dip</dimen>
+
+    <dimen name="buttonBackCorner">0dip</dimen>
+    <dimen name="buttonBackStroke">0dip</dimen>
+
+    <dimen name="buttonNextCorner">0dip</dimen>
+    <dimen name="buttonNextStroke">0dip</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+</resources>

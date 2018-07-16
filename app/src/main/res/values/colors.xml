@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="mono800">#010101</color>
+    <color name="mono500">#424242</color>
+    <color name="mono300">#9E9E9E</color>
+    <color name="mono100">#E0E0E0</color>
+    <color name="mono50" >#EFEFEF</color>
+
+    <color name="red800">#c62828</color>
+    <color name="red500">#f44336</color>
+    <color name="red300">#e57373</color>
+    <color name="red100">#ffcdd2</color>
+    <color name="red50" >#fffcff</color>
+
+    <color name="yellow800">#FFEA00</color>
+    <color name="yellow500">#FFEB3B</color>
+    <color name="yellow300">#FFF176</color>
+    <color name="yellow100">#FFF176</color>
+    <color name="yellow50" >#FFF176</color>
+
+    <color name="green800">#2E7D32</color>
+    <color name="green500">#4CAF50</color>
+    <color name="green300">#81C784</color>
+    <color name="green100">#A5D6A7</color>
+    <color name="green50" >#E0F2F1</color>
+
+<!--    <color name="blue800">#</color>
+    <color name="blue500">#</color>
+    <color name="blue300">#</color>
+    <color name="blue100">#</color>
+    <color name="blue50">#</color>
+
+
+    <color name="skyblue800">#</color>
+    <color name="skyblue500">#</color>
+    <color name="skyblue300">#</color>
+    <color name="skyblue100">#</color>
+    <color name="skyblue50">#</color>
+
+    <color name="orange800">#</color>
+    <color name="orange500">#</color>
+    <color name="orange300">#</color>
+    <color name="orange100">#</color>
+    <color name="orange50">#</color>
+-->
+</resources>
