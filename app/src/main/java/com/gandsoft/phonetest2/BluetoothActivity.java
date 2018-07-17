@@ -31,9 +31,12 @@ public class BluetoothActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bluetooth);
 
+
+
         final TextView tvPassed,tvPassedNot,tvTestBluetoothTitle;
-        final Button bNext, bBack;
         final ProgressBar pbTestBluetooth;
+
+        final Button bNext, bBack;
 
         bBack = (Button)findViewById(R.id.bBack);
         bNext = (Button)findViewById(R.id.bNext);
