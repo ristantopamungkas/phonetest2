@@ -3,9 +3,7 @@ package com.gandsoft.phonetest2;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.Intent;
-import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,11 +13,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 public class GpsActivity extends AppCompatActivity {
-    GpsTracker gps;
+    GpsUtil gps;
 
     @SuppressLint("GpsManagerLeak")
     @TargetApi(Build.VERSION_CODES.M)
@@ -67,7 +64,7 @@ public class GpsActivity extends AppCompatActivity {
         tvPassed = (TextView)findViewById(R.id.tvPassed);
         tvPassedNot = (TextView)findViewById(R.id.tvPassedNot);
 
-        gps = new GpsTracker(GpsActivity.this);
+        gps = new GpsUtil(GpsActivity.this);
 
         if (gps.canGetLocation()) {
             Handler handler = new Handler();
@@ -86,15 +83,14 @@ public class GpsActivity extends AppCompatActivity {
                     }, 1000);
                 }
             }, 3000);
-        } else {
+        } else if (!gps.canGetLocation){
+            gps.showSettingsAlert();
             Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 public void run() {
                     tvPassedNot.setVisibility(View.VISIBLE);
             }
-            }, 5000);   //5 seconds
-
-            gps.showSettingsAlert();
+            }, 10000);   //5 seconds
         }
     }
 }

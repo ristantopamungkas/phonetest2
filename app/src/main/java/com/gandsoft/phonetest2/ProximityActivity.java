@@ -89,7 +89,7 @@ public class ProximityActivity extends AppCompatActivity {
                                 bNext.setEnabled(true);
                                 bNext.setTextColor(getApplicationContext().getResources().getColor(R.color.red50));
                                 bNext.setBackground(getApplicationContext().getResources().getDrawable(R.drawable.button_next_enabled));
-                                //ReportHelper.writeToFile("Proximity sensor detected<br>");
+                                ReportHelper.writeToFile("Proximity sensor detected<br>");
                             }
                         }, 1000);
                         Handler handler2 = new Handler();

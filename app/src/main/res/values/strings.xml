@@ -7,15 +7,18 @@
 
     <string name="bNext">Next</string>
     <string name="bBack">Back</string>
+    <string name="bRearCamera">Rear</string>
+    <string name="bFrontCamera">Front</string>
 
     <!-- Test Part -->
     <string name="tvTestWifiTitle">Wifi Test</string>
     <string name="tvTestBluetoothTitle">Bluetooth Test</string>
     <string name="tvTestGpsTitle">GPS Test</string>
     <string name="tvTestProximityTitle">Proximity Test</string>
-        <string name="tvReadProximity">Swipe your hand above your phone more than three times.</string>
-    <string name="tvTestGyroscopeTitle">Gyroscope Test</string>
+    <string name="tvReadProximity">Swipe your hand above your phone more than three times.</string>
     <string name="tvTestPedometerTitle">Pedometer Test</string>
+    <string name="tvTestGyroscopeTitle">Gyroscope Test</string>
+    <string name="tvTestCameraTitle">Gyroscope Test</string>
     <string name="tvTestResultTitle">Test Result</string>
     <!-- Passed Text -->
     <string name="tvPassed">Test Passed</string>
