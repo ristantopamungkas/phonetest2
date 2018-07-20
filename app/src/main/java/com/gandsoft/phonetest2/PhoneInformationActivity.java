@@ -1,7 +1,9 @@
 package com.gandsoft.phonetest2;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.Camera;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
@@ -13,8 +15,10 @@ import android.widget.ListView;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Executable;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -32,7 +36,6 @@ public class PhoneInformationActivity extends AppCompatActivity {
         ListView lvPhoneInformation;
         ListView listview = (ListView) findViewById(R.id.lvPhoneInformation);
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-
 
         //Read Rootstate
         String rootstate = "Not Allowed";
@@ -62,44 +65,44 @@ public class PhoneInformationActivity extends AppCompatActivity {
                 "Jellybean", "Jellybean", "Jellybean", "Kitkat", "Kitkat",
                 "Lolipop", "Lolipop", "Marshmallow", "Nougat", "Nougat",
                 "Oreo", "Oreo", "Android P"};
-        String androidname = AndroidNameList[Build.VERSION.SDK_INT - 1] + ", " + Build.VERSION.RELEASE;
+        String androidcompleteversion = AndroidNameList[Build.VERSION.SDK_INT - 1] + ", " + Build.VERSION.RELEASE;
 
         //Create SOC Vendor
-        String Hardware = Build.HARDWARE;
-        if (Hardware.equals("qcom")) {
-            Hardware = "Qualcomm" + Build.BOARD;
+        String devicesoc = null;
+        if (Build.HARDWARE.equals("qcom")) {
+            devicesoc = "Qualcomm " + Build.BOARD;
         } else {
-            Hardware = "Mediatek" + Build.BOARD;
+            devicesoc = Build.BOARD;
         }
 
         //Read Mobile Data State
-        int datastate_int = mTelephonyManager.getDataState();
         String datastate = null;
-        if (datastate_int == 2) {
+        if (mTelephonyManager.getDataState() == 2) {
             datastate = "Connected";
-        } else if (datastate_int == 0) {
+        } else if (mTelephonyManager.getDataState() == 0) {
             datastate = "Not Connected";
         }
 
         //Read Screen Details
+        //For Resolution, Size, DPI
+        String screenresolution,screensize,screendpi=null;
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
-
         int heightPixels = metrics.heightPixels;
         int widthPixels = metrics.widthPixels;
         float xdpi = widthPixels / metrics.xdpi;
         float ydpi = heightPixels / metrics.ydpi;
         float x = (float) Math.pow(xdpi, 2);
         float y = (float) Math.pow(ydpi, 2);
-        float screensize = (float) Math.sqrt(x + y);
-        float screensize2 = (float) screensize + (float) 0.02 * screensize;
-
-        int densityDpi = metrics.densityDpi;
+        float screensizenofullscreen = (float) Math.sqrt(x + y);
+        screenresolution = String.valueOf(heightPixels) + "x" + String.valueOf(widthPixels) + " pixels";
+        screensize = String.format("%.1f",Float.valueOf(screensizenofullscreen)) + " inch";
+        screendpi = String.valueOf(metrics.densityDpi)+ " DPI";
 
         // Read Kernel Version
-        String kernelver = null;
+        String kernelversion = null;
         try {
-            Process p = Runtime.getRuntime().exec("uname -r");
+            Process p = Runtime.getRuntime().exec("cat /proc/version");
             InputStream is = null;
             if (p.waitFor() == 0) {
                 is = p.getInputStream();
@@ -107,21 +110,21 @@ public class PhoneInformationActivity extends AppCompatActivity {
                 is = p.getErrorStream();
             }
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            kernelver = br.readLine();
+            kernelversion = br.readLine();
             br.close();
         } catch (Exception ex) {
         }
 
         // Read Core Amount
-        int cores = 0;
-        String coreamount[] = {"",
+
+        String coreamountarray[] = {
                 "Single Core", "Dual Core", "Triple Core", "Quad Core", "Penta Core",
                 "Hexa Core", "Hepta Core", "Octa Core", "Nona Core", "Deca Core"
         };
-        String coreamounttext = null;
+        String coreamount = null;
         try {
-            int core = 0;
-            Process p = Runtime.getRuntime().exec("cat /proc/cpuinfo");
+            Integer core = 0;
+            Process p = Runtime.getRuntime().exec("cat /sys/devices/system/cpu/present");
             InputStream is = null;
             if (p.waitFor() == 0) {
                 is = p.getInputStream();
@@ -129,9 +132,8 @@ public class PhoneInformationActivity extends AppCompatActivity {
                 is = p.getErrorStream();
             }
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            while (br.readLine() != null) core++;
-            cores = (core - 15) / 2;
-            coreamounttext = coreamount[cores];
+            core = Integer.valueOf(br.readLine().replace("0-", ""));
+            coreamount = coreamountarray[core];
             br.close();
         } catch (Exception ex) {
         }
@@ -152,12 +154,10 @@ public class PhoneInformationActivity extends AppCompatActivity {
         } catch (Exception ex) {
         }
 
-        // Read SOC Clockspeed
+        // Read Size of RAM
         String totalram = null;
-        String totalram2 = null;
-        String totalram3 = null;
-        String totalram4 = null;
-        String ram[] = {"256", "512", "768", "1", "1,5", "2", "3", "4", "6", "8", "12"};
+        String totalramkb = null;
+        String totalramgb = null;
         try {
             Process p = Runtime.getRuntime().exec("cat /proc/meminfo");
             InputStream is = null;
@@ -167,10 +167,9 @@ public class PhoneInformationActivity extends AppCompatActivity {
                 is = p.getErrorStream();
             }
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            totalram = br.readLine();
-            totalram2 = totalram.replace("MemTotal:        ", "");
-            totalram3 = totalram2.replace(" kB", "");
-            totalram4 = String.format("%.1f", (Float.valueOf(totalram3) / 1000000 + 0.2) + " GB");
+            totalramkb = br.readLine().replace("MemTotal:      ", "");
+            totalramgb = String.valueOf(Float.valueOf(totalramkb.replace(" kB", "")) / 1048576.0);
+            totalram = String.format("%.1f",Float.valueOf(totalramgb)) + " GB";
             br.close();
         } catch (Exception ex) {
         }
@@ -193,32 +192,70 @@ public class PhoneInformationActivity extends AppCompatActivity {
             e.printStackTrace();
         }
 
-        String status = BatteryManager.EXTRA_VOLTAGE;
 
-        //File file = new File("/data/system/cache/");
+
         //File file = new File("/data/system/inputmethod/subtypes.xml");
-        File file = new File("/data/data/com.google.android.onetimeinitializer/shared_prefs/");
-        Date lastModDate = new Date(file.lastModified());
+        //File file = new File("/vendor/app/");
+        //File file = new File("/data/mediadrm/");
+        //File file = new File("/data/data/com.google.android.onetimeinitializer/shared_prefs/");
+
+        String firstcache="/cache/";
+        File file = new File(firstcache);
+        Date initializedate = new Date(file.lastModified());
+
+        File file2 = new File("/root/");
+        Date firmwaredate = new Date(file2.lastModified());
+
+        Process p = null;
+        String phone_model = "";
+        if(Build.MANUFACTURER.equals("Sony")){
+            try {
+                p = new ProcessBuilder("/system/bin/getprop", "ro.semc.product.name").redirectErrorStream(true).start();
+                BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+                String line = "";
+                while ((line=br.readLine()) != null){
+                    phone_model = line;
+            }
+            p.destroy();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        else{
+            phone_model = Build.MODEL;
+        }
+
+        String imei    = mTelephonyManager.getImei(0)
+                + ", " + mTelephonyManager.getImei(1)
+                + ", " + mTelephonyManager.getImei(2)
+                + ", " + mTelephonyManager.getImei(3)
+                + ", " + mTelephonyManager.getImei(4)
+                + ", " + mTelephonyManager.getImei(5)
+                + ", " + mTelephonyManager.getImei(6);
+        String imeifinal = imei.replace(", null", "");
+
         String[] values = new String[]{
-                "Device Model : " + Build.MANUFACTURER + " " + Build.MODEL,
-                "Android Version  : " + androidname + ", " + Build.VERSION.RELEASE,
-                "Current Security Patch : " + Build.VERSION.SECURITY_PATCH,
-                "SOC Boards: " + Hardware + " " + Build.BOARD,
-                "Processor Details : " + coreamounttext + ", " + clockspeed,
+                "Device Model : " + Build.MANUFACTURER + " " + phone_model,
+                "Android Version  : " + androidcompleteversion,
+                "SOC Boards : " + devicesoc,
+                "Processor Details : " + coreamount + ", " + clockspeed,
                 "Serial Number : " + Build.SERIAL,
-                "Kernel Version : " + kernelver,
-                "Builder : " + Build.USER + "@" + Build.HOST,
-                "Bootloader Version : " + Build.BOOTLOADER,
-                "IMEI Number : " + mTelephonyManager.getDeviceId(),
-                "IMEI SV : " + mTelephonyManager.getDeviceSoftwareVersion(),
+                "Kernel : " + kernelversion,
+                "IMEI Number : " + imeifinal,
                 "Operator Name : " + mTelephonyManager.getNetworkOperatorName(),
                 "Mobile Network : " + datastate,
                 "Root Permission : " + rootstate,
-                "Screen Resolution : " + heightPixels + "x" + widthPixels + " pixels",
-                "Screen Size : " + String.format("%.1f", screensize2) + " inch",
-                "Total Ram : " + totalram4,
-                "Batere : " + String.format("%.0f", batteryCapacity) + " mAh "+status,
-                "a"+ lastModDate
+                "Screen Resolution : " + screenresolution,
+                "Screen DPI : " + screendpi,
+                "Screen Size : " + screensize,
+                "Total Ram : " + totalram,
+//                "Storage Size : " + disksize,
+                "Batere : " + String.format("%.0f", batteryCapacity) + " mAh ",
+                "First Initialize Date : " + initializedate,
+                "Firmware Build Date : " + firmwaredate,
+                "Rear Camera Resolution : "+ getCameraResolutionInMp("rear")+" Megapixels",
+                "Front Camera Resolution : "+ getCameraResolutionInMp("front")+" Megapixels"
+
         };
 
 
@@ -252,4 +289,40 @@ public class PhoneInformationActivity extends AppCompatActivity {
             return true;
         }
     }
+
+    public float getCameraResolutionInMp(String a) {
+
+        int cameraid=100;
+        int cameraman=100;
+        float maxResolution = -1;
+        long pixelCount = -1;
+
+        if(a.equals("rear")){
+             cameraid=0;
+             cameraman = Camera.CameraInfo.CAMERA_FACING_BACK;
+        }
+        else if(a.equals("front")){
+             cameraid=1;
+             cameraman = Camera.CameraInfo.CAMERA_FACING_FRONT;
+        }
+        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+        Camera.getCameraInfo(cameraid, cameraInfo);
+        if (cameraInfo.facing == cameraman ) {
+            try {
+                Camera.Parameters cameraParams = Camera.open(cameraid).getParameters();
+                for (int j = 0; j < cameraParams.getSupportedPictureSizes().size(); j++) {
+                    long pixelCountTemp = cameraParams.getSupportedPictureSizes().get(j).width * cameraParams.getSupportedPictureSizes().get(j).height; // Just changed i to j in this loop
+                    if (pixelCountTemp > pixelCount) {
+                        pixelCount = pixelCountTemp;
+                        maxResolution = Math.round(((float) pixelCountTemp) / 1000000);
+                    }
+                }
+                Camera.open(cameraid).release();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return maxResolution;
+    }
 }
+

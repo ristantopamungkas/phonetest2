@@ -45,7 +45,7 @@ public class GyroscopeActivity extends AppCompatActivity implements SensorEventL
         bNext.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 finish();
-                startActivity(new Intent(GyroscopeActivity.this, ReportActivity.class));
+                startActivity(new Intent(GyroscopeActivity.this, CameraActivity.class));
             }
         });
 
